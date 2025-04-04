@@ -34,7 +34,7 @@ class GetSecretModel(AbstractModel):
     ip_address: Mapped[str] = mapped_column()
 
 
-class DeliteSecretModel(AddSecretModel):
+class DeliteSecretModel(AbstractModel):
     __tablename__ = "delite_secret"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_secret: Mapped[int] = mapped_column(ForeignKey("secret.id"))

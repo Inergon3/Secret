@@ -1,20 +1,29 @@
 import datetime
-from importlib.metadata import metadata
 
 from sqlalchemy import DateTime, ForeignKey, MetaData
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import as_declarative, Mapped, mapped_column
 
+from app.config import postgres_user, postgres_password, postgres_host, postgres_db
+
 metadata = MetaData()
-engine = create_async_engine(f"postgresql+asyncpg://{user}:{password_bd}@{host}/{db_name}", echo=True)
+engine = create_async_engine(f"postgresql+asyncpg://{postgres_user}:{postgres_password}@{postgres_host}/{postgres_db}",
+                             echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+async def get_db() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+
+
 @as_declarative(metadata=metadata)
 class AbstractModel:
     pass
 
 
 class SecretModel(AbstractModel):
-    __tablename__ = "secret"
+    __tablename__ = "secrets"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     secret: Mapped[str] = mapped_column()
     passphrase: Mapped[str] = mapped_column(unique=True)
@@ -24,24 +33,24 @@ class SecretModel(AbstractModel):
 
 
 class AddSecretModel(AbstractModel):
-    __tablename__ = "add_secret"
+    __tablename__ = "add_secrets"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_secret: Mapped[int] = mapped_column(ForeignKey("secret.id"))
-    time_added: Mapped[datetime.datetim] = mapped_column(DateTime(timezone=True))
+    time_added: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
     ip_address: Mapped[str] = mapped_column()
 
 
 class GetSecretModel(AbstractModel):
-    __tablename__ = "get_secret"
+    __tablename__ = "get_secrets"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_secret: Mapped[int] = mapped_column(ForeignKey("secret.id"))
-    time_get: Mapped[datetime.datetim] = mapped_column(DateTime(timezone=True))
+    time_get: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
     ip_address: Mapped[str] = mapped_column()
 
 
 class DeliteSecretModel(AbstractModel):
-    __tablename__ = "delite_secret"
+    __tablename__ = "delite_secrets"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_secret: Mapped[int] = mapped_column(ForeignKey("secret.id"))
-    time_delite: Mapped[datetime.datetim] = mapped_column(DateTime(timezone=True))
+    time_delite: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
     ip_address: Mapped[str] = mapped_column()

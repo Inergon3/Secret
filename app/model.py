@@ -6,11 +6,10 @@ from sqlalchemy import DateTime, ForeignKey, MetaData, LargeBinary, UUID
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import as_declarative, Mapped, mapped_column
 
-from app.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB
+from app.config import SQLALCHEMY_DATABASE_URL
 
 metadata = MetaData()
-engine = create_async_engine(f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}",
-                             echo=True)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
 
 
@@ -37,6 +36,17 @@ class SecretModel(AbstractModel):
     )
     get_secret: Mapped[bool] = mapped_column()
     del_secret: Mapped[bool] = mapped_column()
+
+    def __repr__(self):
+        return (
+            f"SecretModel("
+            f"id={self.id!r}, "
+            f"passphrase={self.passphrase!r}, "
+            f"secret_key={self.secret_key!r}, "
+            f"get_secret={self.get_secret!r}, "
+            f"del_secret={self.del_secret!r}"
+            f")"
+        )
 
 
 class AddSecretModel(AbstractModel):

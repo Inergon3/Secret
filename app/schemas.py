@@ -1,9 +1,7 @@
-from uuid import UUID
-
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AddSecret(BaseModel):
     secret: str
     passphrase: str
-    ttl_seconds: int
+    ttl_seconds: int = 1

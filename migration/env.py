@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from app.config import SQLALCHEMY_DATABASE_URL
+from app.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB
 from app.model import AbstractModel
 
 # this is the Alembic Config object, which provides
@@ -15,12 +15,16 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
+
+config.set_main_option(
+    "sqlalchemy.url",
+    f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}")
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = AbstractModel.metadata
+target_metadata = target_metadata = AbstractModel.metadata
 
 
 # other values from the config, defined by the needs of env.py,

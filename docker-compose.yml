@@ -3,32 +3,30 @@ version: '3.9'
 services:
   app:
     build: .
+    container_name: secret_app
     ports:
       - "8000:8000"
-    environment:
-      - PYTHONUNBUFFERED=1
-      - POSTGRES_USER=inergon
-      - POSTGRES_PASSWORD=000987
-      - POSTGRES_DB=db_secret
-      - POSTGRES_HOST=db
-      - REDIS_HOST=redis
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+    volumes:
+      - .:/app
+    command: ["/app/start.sh"]
     restart: unless-stopped
 
   db:
     image: postgres:15
-    environment:
-      - POSTGRES_USER=inergon
-      - POSTGRES_PASSWORD=000987
-      - POSTGRES_DB=db_secret
+    container_name: secret_db
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U inergon -d db_secret"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -36,6 +34,7 @@ services:
 
   redis:
     image: redis:7
+    container_name: secret_redis
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
